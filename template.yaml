@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Parcel analytics MVP – serverless backend + static frontend.
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref ParcelTable
+        TILE_BUCKET: !Ref TilesBucket
+
+Resources:
+  ####### Backend #######
+  GraphQLFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/api/
+      Handler: graphql_handler.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ParcelTable
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /graphql
+            Method: ANY
+            ApiId: !Ref HttpApi
+
+  EtlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/etl/
+      Handler: ingest_parcels.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ParcelTable
+        - S3WritePolicy:
+            BucketName: !Ref TilesBucket
+      Events:
+        EtlSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 day)
+
+  ParcelTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: apn
+          AttributeType: S
+      KeySchema:
+        - AttributeName: apn
+          KeyType: HASH
+
+  ####### Static content #######
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  TilesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: false
+        BlockPublicAcls: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET]
+            AllowedOrigins: ['*']
+            AllowedHeaders: ['*']
+
+  ####### API Gateway #######
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ['*']
+        AllowHeaders: ['Content-Type']
+        AllowMethods: ['GET', 'POST', 'OPTIONS']
+
+  ####### CDN #######
+  CloudFrontDist:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          ForwardedValues:
+            QueryString: false
+        Origins:
+          - Id: FrontendOrigin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+      Tags:
+        - Key: project
+          Value: parcel-analytics
+
+Outputs:
+  ApiUrl:
+    Description: Base URL of the GraphQL API
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+  FrontendBucketName:
+    Description: S3 bucket hosting static site
+    Value: !Ref FrontendBucket
