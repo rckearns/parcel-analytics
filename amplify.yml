@@ -3,14 +3,16 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        - cd frontend
+        - npm install
     build:
       commands:
-        - npm run build    # next build && next export
+        - npm run build    # runs next build && next export
   artifacts:
-    baseDirectory: out    # Next.js export folder
+    # Amplify will look here for your exported static files
+    baseDirectory: frontend/out
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
+      - frontend/node_modules/**/*
