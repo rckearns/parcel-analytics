@@ -7,6 +7,7 @@ export default function Home() {
   const mapContainer = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!mapContainer.current) return;
+    import mapboxgl from 'mapbox-gl';
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
