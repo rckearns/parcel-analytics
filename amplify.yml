@@ -1,4 +1,7 @@
 version: 1
+env:
+  variables:
+    MAPBOX_TOKEN: "<YOUR_TOKEN>"
 frontend:
   phases:
     preBuild:
