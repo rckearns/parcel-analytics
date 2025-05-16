@@ -3,7 +3,7 @@ version: 1
 env:
   variables:
     NEXT_PUBLIC_MAPBOX_TOKEN: "pk.eyJ1IjoicmNrZWFybnMiLCJhIjoiY21hcGwyZmNmMDFpeDJrb2d3bnIyaWxoNSJ9.8mNR9sV0zYnOJJ32F37CpQ"
-
+    NEXT_PUBLIC_TITLE_DOMAIN: "api.mapbox.com"
 frontend:
   phases:
     preBuild:
