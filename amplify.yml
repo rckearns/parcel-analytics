@@ -1,21 +1,23 @@
 version: 1
+
 env:
-  variables:
-    MAPBOX_TOKEN: "<YOUR_TOKEN>"
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - cd frontend
-        - npm install
-    build:
-      commands:
-        - npm run build    # runs next build && next export
-  artifacts:
-    # Amplify will look here for your exported static files
-    baseDirectory: frontend/out
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - frontend/node_modules/**/*
+    variables:
+      MAP PBOX_TOKEN: "pk.eyJ1IjoicmNrZWFybnMiLCJhIjoiY21hcGwyZmNmMDFpeDJrb2d3bnIyaWxoNSJ9.8mNR9sV0zYnOJJ32F37CpQ"
+          frontend:
+            phases:
+              preBuild:
+                commands:
+                  - cd frontend
+                  - npm install
+            build:
+             commands:
+               - npm run build
+           artifacts:
+            # Amplify will look here for your exported static files
+             baseDirectory: frontend/out
+             files:
+              - '**/*'
+           cache:
+             paths:
+               - frontend/node_modules/**/*
+          #                                                                                   i
