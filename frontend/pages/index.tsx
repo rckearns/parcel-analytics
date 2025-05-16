@@ -1,3 +1,4 @@
+console.log('NEXT_PUBLIC_MAPBOX_TOKEN:', process.env.NEXT_PUBLIC_MAPBOX_TOKEN);
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN as string;
