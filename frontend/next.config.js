@@ -3,9 +3,9 @@ const nextConfig = {
   output: 'export',
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_MAPBOX_TOKEN: process.env.MAPBOX_TOKEN,
+	  NEXT_PUBLIC_TILE_DOMAIN: process.env.TILE_DOMAIN,
   },	
 };
 
 
-module.exports = nextConfig;
+module.exports = nextConfig
